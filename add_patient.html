@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Patient Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f8fb; margin: 0; padding: 0; }
+        header, footer { background-color: #2a3f54; color: white; text-align: center; padding: 1rem; }
+        section { margin: 2rem auto; padding: 2rem; width: 80%; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #2a3f54; text-align: center; }
+        form { display: flex; flex-direction: column; gap: 1rem; width: 40%; margin: auto; }
+        input, select, button, textarea { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; width: 100%; }
+        button { background-color: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Patient Management</h1>
+</header>
+
+<section>
+    <h2>Add New Patient</h2>
+    <form id="patientForm">
+        <input type="text" id="name" name="name" placeholder="Name" required>
+        <input type="number" id="age" name="age" placeholder="Age" required>
+        <select id="gender" name="gender" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+        <input type="text" id="contact" name="contact" placeholder="Contact Number" required>
+        <textarea id="address" name="address" placeholder="Address" required></textarea>
+        <button type="submit">Add Patient</button>
+    </form>
+</section>
+
+<section>
+    <h2>Patient Details</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Contact</th>
+                <th>Address</th>
+                <th>Admission Date</th>
+            </tr>
+        </thead>
+        <tbody id="patientTable">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+</section>
+
+<script>
+    document.getElementById("patientForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const patientData = {
+            name: document.getElementById("name").value,
+            age: document.getElementById("age").value,
+            gender: document.getElementById("gender").value,
+            contact: document.getElementById("contact").value,
+            address: document.getElementById("address").value
+        };
+
+        fetch("http://127.0.0.1:5000/api/add_patient", {  
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(patientData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            fetchPatients();  // Refresh patient table
+            document.getElementById("patientForm").reset(); // Clear form fields
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+    function fetchPatients() {
+        fetch("http://127.0.0.1:5000/api/patients")  
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("patientTable");
+            tableBody.innerHTML = "";
+            data.forEach(patient => {
+                const row = `<tr>
+                    <td>${patient.id}</td>
+                    <td>${patient.name}</td>
+                    <td>${patient.age}</td>
+                    <td>${patient.gender}</td>
+                    <td>${patient.contact}</td>
+                    <td>${patient.address}</td>
+                    <td>${patient.admission_date}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        })
+        .catch(error => console.error("Error fetching patients:", error));
+    }
+
+    fetchPatients(); // Fetch patients on page load
+</script>
+
+</body>
+</html>

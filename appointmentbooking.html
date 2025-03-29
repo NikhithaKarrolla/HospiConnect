@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking - Scheduling System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f8fb; margin: 0; padding: 0; }
+        header, footer { background-color: #2a3f54; color: white; text-align: center; padding: 1rem; }
+        section { margin: 2rem auto; padding: 2rem; width: 50%; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #2a3f54; }
+        form { display: flex; flex-direction: column; gap: 1rem; }
+        input, select, button { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background-color: #0056b3; }
+        .error { color: red; font-size: 0.9rem; }
+    </style>
+  <script>
+    function validateForm(event) {
+        event.preventDefault();
+
+        const patientName = document.getElementById('patient-name').value.trim();
+        const hospital = document.getElementById('hospital').value;
+        const doctor = document.getElementById('doctor').value.trim();
+        const appointmentDate = document.getElementById('appointment-date').value;
+        const timeSlot = document.getElementById('time-slot').value;
+
+        if (!patientName || !hospital || !doctor || !appointmentDate || !timeSlot) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const appointmentData = { patientName, hospital, doctor, appointmentDate, timeSlot };
+
+        fetch("http://localhost:5000/book-appointment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(appointmentData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            document.getElementById('appointment-form').reset(); // Reset form after successful booking
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error booking appointment! Try again later.");
+        });
+    }
+</script>
+
+</head>
+<body>
+    <header>
+        <h1>Appointment Booking-HospiConnect</h1>
+    </header>
+
+    <section>
+        <h2>Schedule Your Appointment</h2>
+        <form id="appointment-form" onsubmit="validateForm(event)">
+            <label for="patient-name">Patient Name:</label>
+            <input type="text" id="patient-name" name="patient-name" required>
+
+            <label for="hospital">Select Hospital:</label>
+            <select id="hospital" name="hospital" required>
+                <option value="">-- Select Hospital --</option>
+                <option value="medicover">Medicover Hospital</option>
+                <option value="yashoda">Yashoda Hospitals</option>
+                <option value="care">CARE Hospitals</option>
+                <option value="apollo">Apollo Hospitals</option>
+            </select>
+
+            <label for="doctor">Select Doctor:</label>
+            <input type="text" id="doctor" name="doctor" required>
+
+            <label for="appointment-date">Appointment Date:</label>
+            <input type="date" id="appointment-date" name="appointment-date" required>
+
+            <label for="time-slot">Preferred Time Slot:</label>
+            <input type="time" id="time-slot" name="time-slot" required>
+
+            <button type="submit">Book Appointment</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>© 2025 HealthConnect. All rights reserved. | Your Trusted Healthcare Hub</p>
+    </footer>
+</body>
+</html>
